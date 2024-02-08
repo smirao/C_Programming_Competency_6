@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/matrix.h"
+#include "../head/matrix.h"
 
 int main() {
     int array_2d[3][3] = {
@@ -15,9 +15,9 @@ int main() {
         {1,1,1}
     };
 
-    Matrix* matrix = gen_matrix(3,3,array_2d);
-    Matrix* matrix2 = gen_matrix(3,3,array_2d2);
-    show_matrix(matrix);
+    Matrix* matrix = matrix_init(3,3,array_2d);
+    Matrix* matrix2 = matrix_init(3,3,array_2d2);
+    print_matrix(matrix);
     
 
     return 0;

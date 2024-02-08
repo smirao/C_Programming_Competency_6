@@ -7,7 +7,7 @@ typedef enum {ADD=1, SUBTRACT=2, MULTIPLY=3} MODES;
 struct Matrix{
     int rows;
     int columns;
-    int* matrix2dArray;
+    long double* matrix2dArray;
     bool sparse;
 };
 
@@ -15,19 +15,19 @@ struct Matrix{
 
 typedef struct Matrix Matrix;
 
-void show_matrix(Matrix* matrix){
+void print_matrix(Matrix* matrix){
     for (int i = 0; i < matrix->rows; i++){
         printf("| ");
         for (int j = 0; j < matrix->columns; j++){
-            printf("%d ", *(matrix->matrix2dArray + (i * j + j)));
+            printf("%Lf ", *(matrix->matrix2dArray + (i * j + j)));
         }
         printf("|\n");
     }
 }
 
-Matrix* gen_matrix(int rows, int columns, int array_2d[rows][columns]){
+Matrix* matrix_init(int rows, int columns, int array_2d[rows][columns]){
     Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
-    matrix->matrix2dArray = (int*)malloc((rows * columns) * sizeof(int));
+    matrix->matrix2dArray = (long double*)malloc((rows * columns) * sizeof(long double));
     matrix->rows = rows;
     matrix->columns = columns;
 

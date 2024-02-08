@@ -7,9 +7,9 @@ ROOT_DIR=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 MAIN=main
 OUT=$(ROOT_DIR)/bin/$(MAIN)
 CC=gcc
-ODIR=$(ROOT_DIR)/object
+ODIR=$(ROOT_DIR)/obj
 SDIR=$(ROOT_DIR)/src
-IDIR=$(ROOT_DIR)/include
+IDIR=$(ROOT_DIR)/head
 BDIR=$(ROOT_DIR)/bin
 
 NOHFILES := main
