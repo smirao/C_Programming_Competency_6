@@ -21,7 +21,7 @@ Following are the Enumeration types defined in the header matrix.h −
 Following are the Functions types defined in the header matrix.h −
 |No.|Function & Description|
 |-|-|
-|1|__Matrix \*matrix_init(int rows, int columns, int array_2d\[rows\]\[columns\])__<br>|
+|1|__Matrix \*matrix_init(int rows, int columns, int array_2d\[rows\]\[columns\])__<br>Parameters: <br> __- rows:__ Number of rows<br>__- columns:__|
 |2|Matrix \*subset_matrix_init(Matrix\* matrix, int min_rows, int max_rows, int min_columns, int max_columns)<br>|
 |3|Matrix \*duplicate_matrix(Matrix\* matrix)<br>|
 |4|Matrix \*matrix_arithmatic(MODES mode, Matrix\* matrix_1, Matrix\* matrix_2)<br>|

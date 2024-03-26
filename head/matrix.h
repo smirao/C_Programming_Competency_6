@@ -10,10 +10,10 @@ typedef struct Matrix Matrix;
 typedef const enum {ADD=1, SUBTRACT=2, MULTIPLY=3, ROTATE_LEFT=4, ROTATE_RIGHT=5, ROTATE_TWICE=6} MODES;
 
 // Required Functions
-Matrix *matrix_init(int rows, int columns, int array_2d[rows][columns]);
+Matrix *matrix_init(int rows, int columns, long double array_2d[rows][columns]);
 Matrix *subset_matrix_init(Matrix* matrix, int min_rows, int max_rows, int min_columns, int max_columns);
 Matrix *duplicate_matrix(Matrix* matrix);
-Matrix *matrix_arithmatic(MODES mode, Matrix* matrix_1, Matrix* matrix_2);
+Matrix *matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, MODES mode);
 long double get_matrix_rows(Matrix* matrix);
 long double get_matrix_columns(Matrix* matrix);
 long double get_matrix_index(int row, int column);
@@ -26,5 +26,7 @@ void rotate_matrix(Matrix* matrix, MODES mode);
 
 // Extra Functions
 void print_matrix(Matrix* matrix);
+long double *arrayify_2d(Matrix* matrix);
+
 
 #endif
