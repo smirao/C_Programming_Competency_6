@@ -50,13 +50,13 @@ matrix_type get_matrix_index(Matrix* matrix, int row, int column)
 }
 
 
-matrix_type *get_matrix_row(Matrix* matrix, int index)
+matrix_type* get_matrix_row(Matrix* matrix, int index)
 {
     return get_row(matrix, index);
 }
 
 
-matrix_type *get_matrix_column(Matrix* matrix, int index)
+matrix_type* get_matrix_column(Matrix* matrix, int index)
 {
    return get_column(matrix, index);
 }
@@ -130,19 +130,19 @@ Matrix* subset_matrix_init(Matrix* matrix, int uppermost_row_index, int lowermos
 {
     if (lowermost_row_index < uppermost_row_index || rightmost_column_index < leftmost_column_index)
     {
-        printf("err1\n");
+        printf("The indexs are switched.\nERR: subset_matrix_init");
         return NULL;
     } 
     
     else if (lowermost_row_index - uppermost_row_index < 0 || rightmost_column_index - leftmost_column_index < 0)
     {
-        printf("err2\n");
+        printf("The indexs are switched.\nERR: subset_matrix_init");
         return NULL;
     }
 
     else if (uppermost_row_index < 0 || rightmost_column_index < 0 || lowermost_row_index > matrix->rows - 1 || rightmost_column_index > matrix->columns - 1)
     {
-        printf("err3\n");
+        printf("The index is out of range.\nERR: subset_matrix_init");
         return NULL;
     }
 
@@ -167,7 +167,7 @@ Matrix* subset_matrix_init(Matrix* matrix, int uppermost_row_index, int lowermos
 }
 
 
-Matrix *duplicate_matrix(Matrix* matrix)
+Matrix* duplicate_matrix(Matrix* matrix)
 {
     // Create new empty matrix
     Matrix *new_matrix = empty_matrix_init(matrix->rows, matrix-> columns);
@@ -192,8 +192,8 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
             // Check to see if matricies are the same size
             if (matrix_1->columns != matrix_2->columns && matrix_1->rows != matrix_2->rows)
             {
-                printf("WARNING: dimension size(s) of the two matricies do not match\nReturning Function...");
-                exit(1);
+                printf("WARNING: dimension size(s) of the two matricies do not match\nReturning Function...\n");
+                return NULL;
             } 
             // Otherwise proceed with operation
             else 
@@ -228,7 +228,7 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
             if (matrix_1->columns != matrix_2->rows)
             {
                 printf("WARNING: the column count of matrix one and the row count of matrix two does not match.\nReturning Function...");
-                exit(1);
+                return NULL;
             } 
             // Otherwise proceed with operation
             else 
@@ -253,6 +253,7 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
         break;
         default:
             printf("Invalid Mode Selection\nERR: matrix_arithmatic\n\n");
+            return NULL;
     }
 
 }
@@ -307,6 +308,11 @@ void rotate_matrix(Matrix* matrix, MODES mode)
 
 void print_matrix(Matrix* matrix)
 {
+    if (matrix == NULL){
+        printf("You cannot pass null pointer to print_matrix.\n");
+        return;
+    }
+
     // Value for count of largest amount of numbers left of a decimal
     long long highest_place = 0;
 

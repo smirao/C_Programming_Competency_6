@@ -14,7 +14,7 @@ TDIR=$(ROOT_DIR)/tests
 IDIR=$(ROOT_DIR)/head
 BDIR=$(ROOT_DIR)/bin
 
-NOHFILES := main
+NOHFILES := main 
 HFILES := matrix matrixutils
 
 _OBJS = $(NOHFILES) $(HFILES)
@@ -27,10 +27,6 @@ all: $(patsubst %, %.o,$(NOHFILES)) $(patsubst %, %.o,$(HFILES)) $(MAIN)
 main.o: $(ROOT_DIR)/main.c
 	$(CC) -c $(ROOT_DIR)/main.c -o $(ODIR)/main.o
 $(call add_target, $(MAIN))
-
-test.o: $(TDIR)/unit_tests.c
-	$(CC) -c $(TDIR)/unit_tests.c -o $(ODIR)/test.o
-$(call add_target, $(TEST))
 
 matrix.o: $(SDIR)/matrix.c $(IDIR)/matrix.h
 	$(CC) -c $(SDIR)/matrix.c -o $(ODIR)/matrix.o
@@ -52,6 +48,4 @@ clean:
 run: 
 	$(ROOT_DIR)/bin/main
 
-test:
-	$(ROOT_DIR)/bin/test
 # make clean; make && clear && ./bin/main

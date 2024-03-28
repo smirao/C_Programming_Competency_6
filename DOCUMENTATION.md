@@ -23,19 +23,20 @@ Following are the Enumeration types defined in the header matrix.h −
 Following are the Functions types defined in the header matrix.h −
 |No.|Function & Description|
 |-|-|
-|1|__Matrix \*matrix_init(int rows, int columns, int array_2d\[rows\]\[columns\])__<br>Parameters: <br> __- rows:__ Number of rows<br>__- columns:__|
-|2|Matrix \*subset_matrix_init(Matrix\* matrix, int min_rows, int max_rows, int min_columns, int max_columns)<br>|
-|3|Matrix \*duplicate_matrix(Matrix\* matrix)<br>|
-|4|Matrix \*matrix_arithmatic(MODES mode, Matrix\* matrix_1, Matrix\* matrix_2)<br>|
-|5|int get_matrix_rows(Matrix\* matrix)<br>|
-|6|int get_matrix_columns(Matrix\* matrix)<br>|
-|7|matrix_type get_matrix_index(int row, int column)<br>|
-|8|matrix_type \*get_matrix_row(Matrix\* matrix, int row)<br>|
-|9|matrix_type \*get_matrix_column(Matrix\* matrix, int column)<br>|
-|10|bool matricies_match(Matrix\* matrix_1, Matrix\* matrix_2)<br>|
-|11|void set_matrix_index(Matrix\* matrix, int row, int column, long double value)<br>|
-|12|void resize_matrix(Matrix\* matrix, int min_rows, int max_rows, int min_columns, int max_columns)<br>|
-|13|void rotate_matrix(Matrix\* matrix, MODES mode)<br>|
-|14|void print_matrix(Matrix\* matrix)<br>|
+|1|__int get_matrix_rows(Matrix* matrix)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|2|__int get_matrix_columns(Matrix* matrix)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|3|__matrix_type get_matrix_index(Matrix* matrix, int row, int column)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|4|__matrix_type* get_matrix_row(Matrix\* matrix, int index)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|5|__matrix_type* get_matrix_column(Matrix\* matrix, int index)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|6|__bool matricies_match(Matrix* matrix_1, Matrix* matrix_2)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|7|__Matrix \*matrix_init(int rows, int columns, int array_2d\[rows\]\[columns\])__<br>Parameters: <br> __- rows:__ Number of rows<br>__- columns:__|
+|8|__Matrix* empty_matrix_init(int rows, int columns)__<br>Parameters: <br> __- rows:__ Given Matrix struct|
+|9|__Matrix* subset_matrix_init(Matrix* matrix, int uppermost_row_index, int lowermost_row_index, int leftmost_column_index, int rightmost_column_index)__<br>|
+|10|__Matrix* duplicate_matrix(Matrix* matrix)__<br>Parameters: <br> __- matrix:__ Given Matrix struct|
+|11|__Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)__<br>|
+|12|__void set_matrix_index(Matrix* matrix, int row, int column, matrix_type value)__<br>|
+|13|__void resize_matrix(Matrix* matrix, int uppermost_row_index, int lowermost_row_index, int leftmost_column_index, int rightmost_column_index)__<br>|
+|14|__void rotate_matrix(Matrix* matrix, MODES mode)__<br>|
+|15|__void print_matrix(Matrix* matrix)__<br>|
 
 
