@@ -7,7 +7,7 @@ void space(){
 }
 
 int main() {
-        matrix_type a1b1[1][1] = {
+    matrix_type a1b1[1][1] = {
         {10},
     };
     Matrix* m1 = matrix_init(1,1,a1b1);
@@ -61,7 +61,10 @@ int main() {
     };
     Matrix* m9 = matrix_init(3,3,a3b3);
 
+    Matrix* m10 = empty_matrix_init(3, 3);
 
+    Matrix* arth = matrix_arithmatic(m6, m8, MULTIPLY);
+    print_matrix(arth);
 
     return 0;
 }
