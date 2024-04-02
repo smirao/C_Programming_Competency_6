@@ -63,8 +63,14 @@ int main() {
 
     Matrix* m10 = empty_matrix_init(3, 3);
 
+    print_matrix(m6);
+    print_matrix(m8);
     Matrix* arth = matrix_arithmatic(m6, m8, MULTIPLY);
+    print_matrix(m10);
+    matrix_type* aa = get_matrix_column(m10, 0);
     print_matrix(arth);
+
+    //printf("%d\n", get_matrix_columns(arth));
 
     return 0;
 }

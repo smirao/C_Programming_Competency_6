@@ -8,6 +8,8 @@ MAIN=main
 TEST=test
 OUT=$(ROOT_DIR)/bin/$(MAIN)
 CC=gcc
+CFLAGS= -std=c11 -c -Wall
+PFLAGS= -lm
 ODIR=$(ROOT_DIR)/obj
 SDIR=$(ROOT_DIR)/src
 TDIR=$(ROOT_DIR)/tests
@@ -25,15 +27,14 @@ all: $(patsubst %, %.o,$(NOHFILES)) $(patsubst %, %.o,$(HFILES)) $(MAIN)
 
 # o files
 main.o: $(ROOT_DIR)/main.c
-	$(CC) -c $(ROOT_DIR)/main.c -o $(ODIR)/main.o
+	$(CC) $(CFLAGS) $(ROOT_DIR)/main.c -o $(ODIR)/main.o 
 $(call add_target, $(MAIN))
 
 matrix.o: $(SDIR)/matrix.c $(IDIR)/matrix.h
-	$(CC) -c $(SDIR)/matrix.c -o $(ODIR)/matrix.o
+	$(CC) $(CFLAGS) $(SDIR)/matrix.c -o $(ODIR)/matrix.o 
 
 matrixutils.o: $(SDIR)/matrixutils.c $(IDIR)/matrixutils.h
-	$(CC) -c $(SDIR)/matrixutils.c -o $(ODIR)/matrixutils.o
-
+	$(CC) $(CFLAGS) $(SDIR)/matrixutils.c -o $(ODIR)/matrixutils.o 
 
 
 # executables
