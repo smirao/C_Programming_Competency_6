@@ -4,24 +4,14 @@
 #include "../head/matrixutils.h"
 
 // Define constant enums for modes 
-//typedef const enum {ADD=1, SUBTRACT=2, MULTIPLY=3, ROTATE_LEFT=4, ROTATE_RIGHT=5, ROTATE_TWICE=6} MODES;
-
-// Define constant enums for typs
-//typedef const enum {INT=7, LONG_INT=8, LONG_LONG_INT=9, CHAR=10, FLOAT=11, DOUBLE=12, LONG_DOUBLE} TYPES;
-
-// Simplify matrix initiation 
-typedef struct Matrix Matrix;
-
-// Define the value of a matrix entry
-typedef long double matrix_type;
-
-
+typedef const enum {ADD=1, SUBTRACT=2, MULTIPLY=3, ROTATE_LEFT=4, ROTATE_RIGHT=5, ROTATE_TWICE=6} MODES;
 
 // Return number of rows in matrix
 int get_matrix_rows(Matrix* matrix)
 {
     return matrix->rows;
 }
+
 
 // Return number of columns in matrix
 int get_matrix_columns(Matrix* matrix)
@@ -30,33 +20,78 @@ int get_matrix_columns(Matrix* matrix)
 }
 
 
+// Return int value associated with matrix type
+int get_matrix_type(Matrix* matrix)
+{
+    return matrix->type;
+}
+
 // Returns Value found at the intersection of (row, column)
-matrix_type get_matrix_index(Matrix* matrix, int row, int column)
+void* get_matrix_index(Matrix* matrix, int row, int column)
 {
     // Check to make sure that row/column is within bounds
     if (row < 0 || row >= matrix->rows || column < 0 || column >= matrix->columns)
     {
         error("Invalid Indexing Range", "get_matrix_index");
         // The above function exits the program, but the return value is to shut the compiler up about the warnings
-        return -1;
+        return NULL;
     }
     else 
     {
         // Return value found at (row, column) in matrix
-        return *( matrix->matrix2dArray + row * matrix->columns + column);
+        switch (matrix->type)
+        {
+            case INT:
+            {
+                return matrix->matrix2dArray.INT + row * matrix->columns + column;
+            }
+            break;
+
+            case LONG_INT:
+            {
+                return matrix->matrix2dArray.LONG_INT + row * matrix->columns + column;
+            }
+            break;
+            
+            case LONG_LONG_INT:
+            {
+                return matrix->matrix2dArray.LONG_LONG_INT + row * matrix->columns + column;
+            }
+            break;
+            
+            case FLOAT:
+            {
+                return matrix->matrix2dArray.FLOAT + row * matrix->columns + column;
+            }
+            break;
+            
+            case DOUBLE:
+            {
+                return matrix->matrix2dArray.DOUBLE + row * matrix->columns + column;
+            }
+            break;
+        
+            case LONG_DOUBLE:
+                return matrix->matrix2dArray.LONG_DOUBLE + row * matrix->columns + column;
+            break;
+            default:
+                error("Something went horribly wrong lol.", "get_matrix_index");
+                return NULL;
+        }
+        
     }
 }
 
 
 // Get an array of values from matrix row
-matrix_type* get_matrix_row(Matrix* matrix, int index)
+void* get_matrix_row(Matrix* matrix, int index)
 {
     return get_row(matrix, index);
 }
 
 
 // Get an array of values from matrix column
-matrix_type* get_matrix_column(Matrix* matrix, int index)
+void* get_matrix_column(Matrix* matrix, int index)
 {
    return get_column(matrix, index);
 }
@@ -65,6 +100,12 @@ matrix_type* get_matrix_column(Matrix* matrix, int index)
 // Return boolean based on if matricies match
 bool matricies_match(Matrix* matrix_1, Matrix* matrix_2)
 {
+    if (matrix_1->type != matrix_2->type)
+    {
+        error("Matricies have conflicting types", "matricies_match");
+        return false;
+    }
+
     // Check to see if the rows and columns match
     if (!((matrix_1->rows == matrix_2->rows) && (matrix_1->columns == matrix_2->columns)))
     {
@@ -74,9 +115,42 @@ bool matricies_match(Matrix* matrix_1, Matrix* matrix_2)
     // Check each element to see if the same if not return false
     for (int i = 0; i < matrix_1->rows * matrix_1->columns; i++)
     {
-        if (*(matrix_1->matrix2dArray + i) != *(matrix_2->matrix2dArray + i))
+        // return false if values are not equal 
+        switch (matrix_1->type)
         {
-            return false;
+            case INT:
+            {
+                if (*(matrix_1->matrix2dArray.INT + i) != *(matrix_2->matrix2dArray.INT + i)){return false;}
+            }
+            break;
+
+            case LONG_INT:
+            {
+                if (*(matrix_1->matrix2dArray.LONG_INT + i) != *(matrix_2->matrix2dArray.LONG_INT + i)){return false;}
+            }
+            break;
+            
+            case LONG_LONG_INT:
+            {
+                if (*(matrix_1->matrix2dArray.LONG_LONG_INT + i) != *(matrix_2->matrix2dArray.LONG_LONG_INT + i)){return false;}
+            }
+            break;
+            
+            case FLOAT:
+            {
+                if (*(matrix_1->matrix2dArray.FLOAT + i) != *(matrix_2->matrix2dArray.FLOAT + i)){return false;}
+            }
+            break;
+            
+            case DOUBLE:
+            {
+                if (*(matrix_1->matrix2dArray.DOUBLE + i) != *(matrix_2->matrix2dArray.DOUBLE + i)){return false;}
+            }
+            break;
+        
+            case LONG_DOUBLE:
+                if (*(matrix_1->matrix2dArray.LONG_DOUBLE + i) != *(matrix_2->matrix2dArray.LONG_DOUBLE + i)){return false;}
+            break;
         }
     }
 
@@ -86,26 +160,101 @@ bool matricies_match(Matrix* matrix_1, Matrix* matrix_2)
 
 
 // Return matrix generated from 2d array
-Matrix* matrix_init(int rows, int columns, matrix_type array_2d[rows][columns])
+Matrix* matrix_init(int rows, int columns, types type, void* array_2d)
 {
     // Create new matrix struct
     Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
 
     // Create new array for the matrix's built in matrix2dArray value
-    matrix->matrix2dArray = (matrix_type*)malloc((rows * columns) * sizeof(matrix_type));
+    switch (type)
+    {
+        case INT:
+        {
+            matrix->matrix2dArray.INT = (int*)malloc((rows * columns) * sizeof(int));
+        }
+        break;
+
+        case LONG_INT:
+        {
+            matrix->matrix2dArray.LONG_INT = (long int*)malloc((rows * columns) * sizeof(long int));
+        }
+        break;
+        
+        case LONG_LONG_INT:
+        {
+            matrix->matrix2dArray.LONG_LONG_INT = (long long int*)malloc((rows * columns) * sizeof(long long int));
+        }
+        break;
+        
+        case FLOAT:
+        {
+            matrix->matrix2dArray.FLOAT = (float*)malloc((rows * columns) * sizeof(float));
+        }
+        break;
+        
+        case DOUBLE:
+        {
+            matrix->matrix2dArray.DOUBLE = (double*)malloc((rows * columns) * sizeof(double));
+        }
+        break;
+        
+        case LONG_DOUBLE:
+            matrix->matrix2dArray.LONG_DOUBLE = (long double*)malloc((rows * columns) * sizeof(long double));
+        break;
+    }
 
     // Add rows and columns 
     matrix->rows = rows;
     matrix->columns = columns;
+    matrix->type = type;
 
+    // index varable is used to easily index 2d array as a 1d bc memory is continuous
     int index = 0;
-    // itterate through 2dArray's rows and colums
+
+    // itterate through 2dArray's rows and colums add values to matrix
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++)
         {
-            // append to matrix 
-            *(matrix->matrix2dArray + index++) = (matrix_type)array_2d[i][j];
+            switch (type)
+            {
+                case INT:
+                {
+                    *(matrix->matrix2dArray.INT + index) = *((int*)array_2d + index);
+                }
+                break;
+
+                case LONG_INT:
+                {
+                    *(matrix->matrix2dArray.LONG_INT + index) = *((long int*)array_2d + index);
+                }
+                break;
+                
+                case LONG_LONG_INT:
+                {
+                    *(matrix->matrix2dArray.LONG_LONG_INT + index) = *((long long int*)array_2d + index);
+                }
+                break;
+                
+                case FLOAT:
+                {
+                    *(matrix->matrix2dArray.FLOAT + index) = *((float*)array_2d + index);
+                }
+                break;
+                
+                case DOUBLE:
+                {
+                    *(matrix->matrix2dArray.DOUBLE + index) = *((double*)array_2d + index);
+                }
+                break;
+        
+                case LONG_DOUBLE:
+                {
+                    *(matrix->matrix2dArray.LONG_DOUBLE + index) = *((long double*)array_2d + index);
+                }
+                break;
+            }
+            index++;
         }
     }
     return matrix;
@@ -113,17 +262,53 @@ Matrix* matrix_init(int rows, int columns, matrix_type array_2d[rows][columns])
 
 
 // Return empty matrix based on dimensional imput
-Matrix* empty_matrix_init(int rows, int columns)
+Matrix* empty_matrix_init(int rows, int columns, types type)
 {
     // Create new matrix struct
     Matrix* matrix = (Matrix*)malloc(sizeof(Matrix));
 
     // Create new array for the matrix's built in matrix2dArray value
-    matrix->matrix2dArray = (matrix_type*)calloc((rows * columns), sizeof(matrix_type));
+    switch (type)
+    {
+        case INT:
+        {
+            matrix->matrix2dArray.INT = (int*)calloc((rows * columns), sizeof(int));
+        }
+        break;
+
+        case LONG_INT:
+        {
+            matrix->matrix2dArray.LONG_INT = (long int*)calloc((rows * columns), sizeof(long int));
+        }
+        break;
+        
+        case LONG_LONG_INT:
+        {
+            matrix->matrix2dArray.LONG_LONG_INT = (long long int*)calloc((rows * columns), sizeof(long long int));
+        }
+        break;
+        
+        case FLOAT:
+        {
+            matrix->matrix2dArray.FLOAT = (float*)calloc((rows * columns), sizeof(float));
+        }
+        break;
+        
+        case DOUBLE:
+        {
+            matrix->matrix2dArray.DOUBLE = (double*)calloc((rows * columns), sizeof(double));
+        }
+        break;
+        
+        case LONG_DOUBLE:
+            matrix->matrix2dArray.LONG_DOUBLE = (long double*)calloc((rows * columns), sizeof(long double));
+        break;
+    }
 
     // Add rows and columns 
     matrix->rows = rows;
     matrix->columns = columns;
+    matrix->type = type;
 
     return matrix;
 }
@@ -155,24 +340,99 @@ Matrix* subset_matrix_init(Matrix* matrix, int uppermost_row_index, int lowermos
 
     else
     {
-        // create a new array and new matrix
-        matrix_type *new_matrix2dArray = (matrix_type*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(matrix_type));
-        Matrix* new_matrix = empty_matrix_init((lowermost_row_index - uppermost_row_index + 1), (rightmost_column_index - leftmost_column_index + 1));
-        
         // index varable is used to easily index 2d array as a 1d bc memory is continuous
+        Matrix* new_matrix = empty_matrix_init((lowermost_row_index - uppermost_row_index + 1), (rightmost_column_index - leftmost_column_index + 1), matrix->type);
         int index = 0;
 
-        // Iterate through predefined range(s) and append value to 2d array
-        for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+        // create new array adding values within specified range 
+        switch (matrix->type)
         {
-            for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+            case INT:
             {
-                *(new_matrix2dArray + index++) = get_matrix_index(matrix, i, j);
+                int *new_matrix2dArray = (int*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(int));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(int*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.INT = new_matrix2dArray;
             }
-        }
+            break;
 
+            case LONG_INT:
+            {
+                long int *new_matrix2dArray = (long int*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(long int));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(long int*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.LONG_INT = new_matrix2dArray;
+            }
+            break;
+            
+            case LONG_LONG_INT:
+            {
+                long long int *new_matrix2dArray = (long long int*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(long long int));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(long long int*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.LONG_LONG_INT = new_matrix2dArray;
+            }
+            break;
+            
+            case FLOAT:
+            {
+                float *new_matrix2dArray = (float*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(float));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(float*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.FLOAT = new_matrix2dArray;
+            }
+            break;
+            
+            case DOUBLE:
+            {
+                double *new_matrix2dArray = (double*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(double));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(double*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.DOUBLE = new_matrix2dArray;
+            }
+            break;
+        
+            case LONG_DOUBLE:
+            {
+                long double *new_matrix2dArray = (long double*)calloc((lowermost_row_index - uppermost_row_index + 1) * (rightmost_column_index - leftmost_column_index + 1), sizeof(long double));
+                for (int i = uppermost_row_index; i < lowermost_row_index + 1; i++)
+                {
+                    for (int j = leftmost_column_index; j < rightmost_column_index + 1; j++)
+                    {
+                        *(new_matrix2dArray + index++) = *(long double*)get_matrix_index(matrix, i, j);
+                    }
+                }
+                new_matrix->matrix2dArray.LONG_DOUBLE = new_matrix2dArray;
+            }
+            break;
+        }
+        
         // insert data into new matrix and return
-        new_matrix->matrix2dArray = new_matrix2dArray;
         new_matrix->rows = (lowermost_row_index - uppermost_row_index + 1);
         new_matrix->columns = (rightmost_column_index - leftmost_column_index + 1);
         return new_matrix;
@@ -184,12 +444,48 @@ Matrix* subset_matrix_init(Matrix* matrix, int uppermost_row_index, int lowermos
 Matrix* duplicate_matrix(Matrix* matrix)
 {
     // Create new empty matrix
-    Matrix *new_matrix = empty_matrix_init(matrix->rows, matrix-> columns);
+    Matrix *new_matrix = empty_matrix_init(matrix->rows, matrix->columns, matrix->type);
 
     // Iterate through riws and columns of both matricies copying from original to new
     for (int i = 0; i < matrix->rows * matrix->columns; i++)
     {
-        *(new_matrix->matrix2dArray + i) = *(matrix->matrix2dArray + i);
+        // Add values to new matrix
+        switch (matrix->type)
+        {
+            case INT:
+            {
+                *(new_matrix->matrix2dArray.INT + i) = *(matrix->matrix2dArray.INT + i);
+            }
+            break;
+
+            case LONG_INT:
+            {
+                *(new_matrix->matrix2dArray.LONG_INT + i) = *(matrix->matrix2dArray.LONG_INT + i);
+            }
+            break;
+            
+            case LONG_LONG_INT:
+            {
+                *(new_matrix->matrix2dArray.LONG_LONG_INT + i) = *(matrix->matrix2dArray.LONG_LONG_INT + i);
+            }
+            break;
+            
+            case FLOAT:
+            {
+                *(new_matrix->matrix2dArray.FLOAT + i) = *(matrix->matrix2dArray.FLOAT + i);
+            }
+            break;
+            
+            case DOUBLE:
+            {
+                *(new_matrix->matrix2dArray.DOUBLE + i) = *(matrix->matrix2dArray.DOUBLE + i);
+            }
+            break;
+        
+            case LONG_DOUBLE:
+                *(new_matrix->matrix2dArray.LONG_DOUBLE + i) = *(matrix->matrix2dArray.LONG_DOUBLE + i);
+            break;
+        }
     }
 
     return new_matrix;
@@ -199,6 +495,8 @@ Matrix* duplicate_matrix(Matrix* matrix)
 // Returns value of some type of matrix arithmatic eg: add, subtract, multiply
 Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
 {
+    Matrix* new_matrix = empty_matrix_init(matrix_1->rows, matrix_2->columns, matrix_1->type);
+
     switch (mode)
     {
         // ADD and SUBTRACT follow same line of logic
@@ -214,9 +512,9 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
             } 
             else 
             {
-                // initiate an empty matrix
-                Matrix* new_matrix = empty_matrix_init(matrix_1->rows, matrix_1->columns);
-                int index;
+                //Matrix* new_matrix = empty_matrix_init(matrix_1->rows, matrix_1->columns, matrix_1->type);
+                // index varable is used to easily index 2d array as a 1d bc memory is continuous
+                int index = 0;
 
                 // itterate through the matrix going through each row and column individually
                 for (int i = 0; i < matrix_1->rows; i++)
@@ -224,14 +522,83 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
                     for (int j = 0; j < matrix_1->columns; j++)
                     {
                         // memory is stored sequentially so treat 2D array as an array of size l x w
-                        index = i * matrix_1->rows + j;
                         if (mode == ADD)
                         {
-                            *(new_matrix->matrix2dArray + index) = *(matrix_1->matrix2dArray + index) + *(matrix_2->matrix2dArray + index);
+                            switch (matrix_1->type)
+                            {
+                                case INT:
+                                {
+                                    *(new_matrix->matrix2dArray.INT + index++) = *(int*)get_matrix_index(matrix_1, i, j) + *(int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+
+                                case LONG_INT:
+                                {
+                                    *(new_matrix->matrix2dArray.LONG_INT + index++) = *(long int*)get_matrix_index(matrix_1, i, j) + *(long int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case LONG_LONG_INT:
+                                {
+                                    *(new_matrix->matrix2dArray.LONG_LONG_INT + index++) = *(long long int*)get_matrix_index(matrix_1, i, j) + *(long long int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case FLOAT:
+                                {
+                                    *(new_matrix->matrix2dArray.FLOAT + index++) = *(float*)get_matrix_index(matrix_1, i, j) + *(float*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case DOUBLE:
+                                {
+                                    *(new_matrix->matrix2dArray.DOUBLE + index++) = *(double*)get_matrix_index(matrix_1, i, j) + *(double*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+        
+                                case LONG_DOUBLE:
+                                    *(new_matrix->matrix2dArray.LONG_DOUBLE + index++) = *(long double*)get_matrix_index(matrix_1, i, j) + *(long double*)get_matrix_index(matrix_2, i, j);
+                                break;
+                            }
                         } 
                         else if (mode == SUBTRACT)
                         {
-                            *(new_matrix->matrix2dArray + index) = *(matrix_1->matrix2dArray + index) - *(matrix_2->matrix2dArray + index);
+                            switch (matrix_1->type)
+                            {
+                                case INT:
+                                {
+                                    *(new_matrix->matrix2dArray.INT + index++) = *(int*)get_matrix_index(matrix_1, i, j) - *(int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+
+                                case LONG_INT:
+                                {
+                                    *(new_matrix->matrix2dArray.LONG_INT + index++) = *(long int*)get_matrix_index(matrix_1, i, j) - *(long int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case LONG_LONG_INT:
+                                {
+                                    *(new_matrix->matrix2dArray.LONG_LONG_INT + index++) = *(long long int*)get_matrix_index(matrix_1, i, j) - *(long long int*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case FLOAT:
+                                {
+                                    *(new_matrix->matrix2dArray.FLOAT + index++) = *(float*)get_matrix_index(matrix_1, i, j) - *(float*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+                                
+                                case DOUBLE:
+                                {
+                                    *(new_matrix->matrix2dArray.DOUBLE + index++) = *(double*)get_matrix_index(matrix_1, i, j) - *(double*)get_matrix_index(matrix_2, i, j);
+                                }
+                                break;
+        
+                                case LONG_DOUBLE:
+                                    *(new_matrix->matrix2dArray.LONG_DOUBLE + index++) = *(long double*)get_matrix_index(matrix_1, i, j) - *(long double*)get_matrix_index(matrix_2, i, j);
+                                break;
+                            }
                         }
                     }
                 }
@@ -250,21 +617,120 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
             else 
             {
 
-                // initiate an empty matrix
-                Matrix* new_matrix = empty_matrix_init(matrix_1->rows, matrix_2->columns);
-
                 // For each row in matrix_1 go through each column in matrix_2, multiply and add to new matrix dimensions
                 for (int i = 0; i < matrix_1->rows; i++)
                 {
-                    matrix_type* row = get_matrix_row(matrix_1, i);
-
-                    for (int j = 0; j < matrix_2->columns; j++)
+                    switch (matrix_1->type)
                     {
-                        matrix_type* column = get_matrix_column(matrix_2, j);
-                        matrix_type new_element = multiply_and_summate(row, column, matrix_1->columns);
-                        *(new_matrix->matrix2dArray + (new_matrix->columns * i + j)) = new_element;
+                        case INT:
+                        {
+                            int* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                int* column = (int*)get_matrix_column(matrix_2, j);
+                                int total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.INT + (new_matrix->columns * i + j)) = total;
 
+                            }
+                        }
+                        break;
+
+                        case LONG_INT:
+                        {
+                            long int* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                long int* column = (long int*)get_matrix_column(matrix_2, j);
+                                long int total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.LONG_INT + (new_matrix->columns * i + j)) = total;
+
+                            }
+                        }
+                        break;
+                        
+                        case LONG_LONG_INT:
+                        {
+                            long long int* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                long long int* column = (long long int*)get_matrix_column(matrix_2, j);
+                                long long int total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.LONG_LONG_INT + (new_matrix->columns * i + j)) = total;
+
+                            }
+                        }
+                        break;
+                        
+                        case FLOAT:
+                        {
+                            float* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                float* column = (float*)get_matrix_column(matrix_2, j);
+                                float total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.FLOAT + (new_matrix->columns * i + j)) = total;
+
+                            }
+                        }
+                        break;
+                        
+                        case DOUBLE:
+                        {
+                            double* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                double* column = (double*)get_matrix_column(matrix_2, j);
+                                double total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.DOUBLE + (new_matrix->columns * i + j)) = total;
+
+                            }
+                        }
+                        break;
+        
+                        case LONG_DOUBLE:
+                        {
+                            long double* row = get_matrix_row(matrix_1, i);
+    
+                            for (int j = 0; j < matrix_2->columns; j++)
+                            {
+                                long double* column = get_matrix_column(matrix_2, j);
+                                long double total = 0;
+                                for (int a = 0; a < matrix_1->columns; a++)
+                                {
+                                    total += *(row + a) * *(column + a);
+                                }
+                                *(new_matrix->matrix2dArray.LONG_DOUBLE + (new_matrix->columns * i + j)) = total;
+
+                            }
+                        }
+                        break;
                     }
+                    
                 }
                 return new_matrix;
             }
@@ -279,7 +745,7 @@ Matrix* matrix_arithmatic(Matrix* matrix_1, Matrix* matrix_2, int mode)
 
 
 // Set vale of matrix at (row, column)
-void set_matrix_index(Matrix* matrix, int row, int column, matrix_type value)
+void set_matrix_index(Matrix* matrix, int row, int column, void* value)
 {
     // Check if row and column selection is within range
     if (row < 0 || row >= matrix->rows || column < 0 || column >= matrix->columns)
@@ -289,7 +755,42 @@ void set_matrix_index(Matrix* matrix, int row, int column, matrix_type value)
     else 
     {
         // Dereference and assign value
-        *( matrix->matrix2dArray + row * matrix->columns + column) = value;
+        switch (matrix->type)
+        {
+            case INT:
+            {
+                *( matrix->matrix2dArray.INT + row * matrix->columns + column) = *(int*)value;
+            }
+            break;
+
+            case LONG_INT:
+            {
+                *( matrix->matrix2dArray.LONG_INT + row * matrix->columns + column) = *(long int*)value;
+            }
+            break;
+            
+            case LONG_LONG_INT:
+            {
+                *( matrix->matrix2dArray.LONG_LONG_INT + row * matrix->columns + column) = *(long long int*)value;
+            }
+            break;
+            
+            case FLOAT:
+            {
+                *( matrix->matrix2dArray.FLOAT + row * matrix->columns + column) = *(float*)value;
+            }
+            break;
+            
+            case DOUBLE:
+            {
+                *( matrix->matrix2dArray.DOUBLE + row * matrix->columns + column) = *(double*)value;
+            }
+            break;
+        
+            case LONG_DOUBLE:
+                *( matrix->matrix2dArray.LONG_DOUBLE + row * matrix->columns + column) = *(long double*)value;
+            break;
+        }
     }
 }
 
@@ -300,11 +801,55 @@ void resize_matrix(Matrix* matrix, int uppermost_row_index, int lowermost_row_in
     // Return a temp subset 
     Matrix* tmp_matrix = subset_matrix_init(matrix, uppermost_row_index, lowermost_row_index, leftmost_column_index, rightmost_column_index);
 
-    // Free unused matrix
-    free(matrix->matrix2dArray);
+    switch (matrix->type)
+    {
+        case INT:
+        {
+            free(matrix->matrix2dArray.INT);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.INT = tmp_matrix->matrix2dArray.INT;
+        }
+        break;
 
-    // Swap old matrix values with new values
-    matrix->matrix2dArray = tmp_matrix->matrix2dArray;
+        case LONG_INT:
+        {
+            free(matrix->matrix2dArray.LONG_INT);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.LONG_INT = tmp_matrix->matrix2dArray.LONG_INT;
+        }
+        break;
+        
+        case LONG_LONG_INT:
+        {
+            free(matrix->matrix2dArray.LONG_LONG_INT);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.LONG_LONG_INT = tmp_matrix->matrix2dArray.LONG_LONG_INT;
+        }
+        break;
+        
+        case FLOAT:
+        {
+            free(matrix->matrix2dArray.FLOAT);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.FLOAT = tmp_matrix->matrix2dArray.FLOAT;
+        }
+        break;
+        
+        case DOUBLE:
+        {
+            free(matrix->matrix2dArray.DOUBLE);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.DOUBLE = tmp_matrix->matrix2dArray.DOUBLE;
+        }
+        break;
+        
+        case LONG_DOUBLE:
+        {
+            free(matrix->matrix2dArray.LONG_DOUBLE);
+            // Swap old matrix values with new values
+            matrix->matrix2dArray.LONG_DOUBLE = tmp_matrix->matrix2dArray.LONG_DOUBLE;
+        }
+    }
     matrix->rows = tmp_matrix->rows;
     matrix->columns = tmp_matrix->columns;
 
@@ -354,7 +899,45 @@ void print_matrix(Matrix* matrix)
         {
 
             // Get length of number to the left of decimal
-            int places = base_10_highest_place(*(matrix->matrix2dArray + (i * matrix->columns + j)));
+            int places = 0;
+
+            switch (matrix->type)
+            {
+                case INT:
+                {
+                    places = base_10_highest_place((matrix->matrix2dArray.INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+
+                case LONG_INT:
+                {
+                    places = base_10_highest_place((matrix->matrix2dArray.LONG_INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case LONG_LONG_INT:
+                {
+                    places = base_10_highest_place((matrix->matrix2dArray.LONG_LONG_INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case FLOAT:
+                {
+                    places = base_10_highest_place((matrix->matrix2dArray.FLOAT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case DOUBLE:
+                {
+                    places = base_10_highest_place((matrix->matrix2dArray.DOUBLE + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+        
+                case LONG_DOUBLE:
+                    places = base_10_highest_place((matrix->matrix2dArray.LONG_DOUBLE + (i * matrix->columns + j)), matrix->type);
+                break;
+            }
+
             
             // Replace number if higher is found
             if (highest_place < places)
@@ -373,10 +956,47 @@ void print_matrix(Matrix* matrix)
         for (int j = 0; j < matrix->columns; j++)
         {
             // Determine amount of whitespace by subtracting greatest number by length of number to the left of decimal
-            long long whitespace = highest_place - base_10_highest_place(*(matrix->matrix2dArray + (i * matrix->columns + j)));
-            
+            int tmp = 0;
+            switch (matrix->type)
+            {
+                case INT:
+                {
+                    tmp = base_10_highest_place((matrix->matrix2dArray.INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+
+                case LONG_INT:
+                {
+                    tmp = base_10_highest_place((matrix->matrix2dArray.LONG_INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case LONG_LONG_INT:
+                {
+                    tmp = base_10_highest_place((matrix->matrix2dArray.LONG_LONG_INT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case FLOAT:
+                {
+                    tmp = base_10_highest_place((matrix->matrix2dArray.FLOAT + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+                
+                case DOUBLE:
+                {
+                    tmp = base_10_highest_place((matrix->matrix2dArray.DOUBLE + (i * matrix->columns + j)), matrix->type);
+                }
+                break;
+        
+                case LONG_DOUBLE:
+                    tmp = base_10_highest_place((matrix->matrix2dArray.LONG_DOUBLE + (i * matrix->columns + j)), matrix->type);
+                break;
+            }
+            int whitespace = highest_place - tmp; 
+
             // If the number in question is not negative, add some whitespace to compansate for possible negative numbers
-            if (*(matrix->matrix2dArray + (i * matrix->columns + j)) >= 0){whitespace++;}
+            if (tmp >= 0){whitespace++;}
 
             // Print out whitespace
             for (int w = 0; w < whitespace; w++)
@@ -385,11 +1005,44 @@ void print_matrix(Matrix* matrix)
             }
 
             // print out number
-            printf("%.5Lf ", *(matrix->matrix2dArray + (i * matrix->columns + j)));
+            switch (matrix->type)
+            {
+                case INT:
+                {
+                    printf("%d ", *(matrix->matrix2dArray.INT + (i * matrix->columns + j)));
+                }
+                break;
+
+                case LONG_INT:
+                {
+                    printf("%ld ", *(matrix->matrix2dArray.LONG_INT + (i * matrix->columns + j)));
+                }
+                break;
+                
+                case LONG_LONG_INT:
+                {
+                    printf("%lld ", *(matrix->matrix2dArray.LONG_LONG_INT + (i * matrix->columns + j)));
+                }
+                break;
+                
+                case FLOAT:
+                {
+                    printf("%.5f ", *(matrix->matrix2dArray.FLOAT + (i * matrix->columns + j)));
+                }
+                break;
+                case DOUBLE:
+                {
+                    printf("%.5f ", *(matrix->matrix2dArray.DOUBLE + (i * matrix->columns + j)));
+                }
+                break;
+        
+                case LONG_DOUBLE:
+                    printf("%.5Lf ", *(matrix->matrix2dArray.LONG_DOUBLE + (i * matrix->columns + j)));
+                break;
+            }
         }
 
         // Right matrix wall and a newline
         printf("|\n");
     }
 }
-

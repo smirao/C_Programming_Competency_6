@@ -5,10 +5,11 @@
 ROOT_DIR=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 MAIN=main
-TEST=test
+TEST=tests
 OUT=$(ROOT_DIR)/bin/$(MAIN)
+OUTT=$(ROOT_DIR)/bin/$(TEST)
 CC=gcc
-CFLAGS= -std=c11 -c -Wall
+CFLAGS= -std=c11 -c -Wall 
 PFLAGS= -lm
 ODIR=$(ROOT_DIR)/obj
 SDIR=$(ROOT_DIR)/src
@@ -17,18 +18,23 @@ IDIR=$(ROOT_DIR)/head
 BDIR=$(ROOT_DIR)/bin
 
 NOHFILES := main 
+NOHFILEST := unit_tests 
 HFILES := matrix matrixutils
 
 _OBJS = $(NOHFILES) $(HFILES)
-$(info $(_OBJS))
+
 OFILES = $(patsubst %, $(ODIR)/%.o,$(_OBJS))
 
-all: $(patsubst %, %.o,$(NOHFILES)) $(patsubst %, %.o,$(HFILES)) $(MAIN)
+all: $(patsubst %, %.o,$(NOHFILES)) $(patsubst %, %.o,$(NOHFILEST)) $(patsubst %, %.o,$(HFILES)) main tests
+
 
 # o files
 main.o: $(ROOT_DIR)/main.c
 	$(CC) $(CFLAGS) $(ROOT_DIR)/main.c -o $(ODIR)/main.o 
-$(call add_target, $(MAIN))
+
+unit_tests.o: $(TDIR)/unit_tests.c
+	$(CC) $(CFLAGS) $(TDIR)/unit_tests.c -o $(ODIR)/unit_tests.o 
+
 
 matrix.o: $(SDIR)/matrix.c $(IDIR)/matrix.h
 	$(CC) $(CFLAGS) $(SDIR)/matrix.c -o $(ODIR)/matrix.o 
@@ -38,13 +44,19 @@ matrixutils.o: $(SDIR)/matrixutils.c $(IDIR)/matrixutils.h
 
 
 # executables
-$(MAIN): $(OBJS)
-	$(CC) $(OFILES) -o $(OUT)
+main: $(OFILES)
+	$(CC) $(patsubst %, $(ODIR)/%.o,$(HFILES)) $(patsubst %, $(ODIR)/%.o,$(NOHFILES)) -o $(OUT)
+
+tests: $(OFILES)
+	$(CC) $(patsubst %, $(ODIR)/%.o,$(HFILES)) $(patsubst %, $(ODIR)/%.o,$(NOHFILEST)) -o $(OUTT)
 
 # extra commands
 clean:
 	rm $(ODIR)/*.o
 	rm $(BDIR)/*
+
+test:
+	$(ROOT_DIR)/bin/tests
 
 run: 
 	$(ROOT_DIR)/bin/main
